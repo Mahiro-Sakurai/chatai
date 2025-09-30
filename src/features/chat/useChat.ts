@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { Message } from "./types";
 
-export function useChat() {
-    const [messages, setMessages] = useState<Message[]>([]);
+export function useChat(initialMessages: Message[] = []) {
+    const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [value, setValue] = useState("");
 
     async function sendMessage() {
@@ -32,6 +32,7 @@ export function useChat() {
         value,
         setValue,
         messages,
+        setMessages,
         sendMessage,
     };
 }
