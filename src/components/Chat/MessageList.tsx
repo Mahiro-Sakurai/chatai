@@ -1,16 +1,18 @@
 // メッセージ一覧を描画
-import MessageItem from "./MessageItem";
+// src/components/Chat/MessageList.tsx
 import { Message } from "@/features/chat/types";
+import MessageItem from "./MessageItem";
 
 type Props = {
     messages: Message[];
+    onSelectOption: (option: string) => void;
 };
 
-export default function MessageList({ messages }: Props) {
+export default function MessageList({ messages, onSelectOption }: Props) {
     return (
         <div className="flex-1 overflow-y-auto mb-4 space-y-2">
             {messages.map((msg, i) => (
-                <MessageItem key={i} role={msg.role} content={msg.content} />
+                <MessageItem key={i} message={msg} onSelectOption={onSelectOption} />
             ))}
         </div>
     );
