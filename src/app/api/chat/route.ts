@@ -5,7 +5,7 @@ const BASE_URL = process.env.DIFY_BASE_URL || "https://api.dify.ai/v1";
 const API_KEY = process.env.DIFY_API_KEY!;
 
 export async function POST(req: Request) {
-    console.log("API route hit!"); // ← ここ
+    console.log("API route hit!");
 
     if (!API_KEY) {
         return NextResponse.json(
@@ -16,13 +16,13 @@ export async function POST(req: Request) {
 
     // クライアントからのjsonをパース
     const { message, userId } = await req.json().catch(() => ({}));
-    console.log("Received message:", message); // ← ここ
+    console.log("Received message:", message);
     const text = String(message ?? "").trim();
     if (!text) {
         return NextResponse.json({ error: "message is required" }, { status: 400 });
     }
 
-    // Dify の通常API呼び出し (blocking mode)
+    // Dify に渡す
     const upstream = await fetch(`${BASE_URL}/chat-messages`, {
         method: "POST",
         headers: {

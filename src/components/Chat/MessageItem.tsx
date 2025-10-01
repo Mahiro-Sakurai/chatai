@@ -1,14 +1,12 @@
 // メッセージ1つ分のUI
 import { Message } from "@/features/chat/types";
-import OptionButtons from "./OptionButtons";
 
 type Props = {
     message: Message;
-    onSelectOption: (option: string) => void;
 };
 
-export default function MessageItem({ message, onSelectOption }: Props) {
-    const { role, content, options } = message;
+export default function MessageItem({ message }: Props) {
+    const { role, content } = message;
 
     return (
         <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
@@ -19,9 +17,7 @@ export default function MessageItem({ message, onSelectOption }: Props) {
                     }`}
             >
                 {content}
-                {options && role === "ai" && (
-                    <OptionButtons options={options} onSelect={onSelectOption} />
-                )}
+
             </div>
         </div>
     );

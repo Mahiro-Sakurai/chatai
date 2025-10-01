@@ -5,14 +5,13 @@ import MessageItem from "./MessageItem";
 
 type Props = {
     messages: Message[];
-    onSelectOption: (option: string) => void;
 };
 
-export default function MessageList({ messages, onSelectOption }: Props) {
+export default function MessageList({ messages }: Props) {
     return (
         <div className="flex-1 overflow-y-auto mb-4 space-y-2">
             {messages.map((msg, i) => (
-                <MessageItem key={i} message={msg} onSelectOption={onSelectOption} />
+                <MessageItem key={i} message={msg} />
             ))}
         </div>
     );
