@@ -1,4 +1,6 @@
-export function validateMessage(message: any): void {
+import { Message } from "@/features/chat/types";
+
+export function validateMessage(message: { content: string; count: number; messageList: Message[] }): void {
     if (!message) {
         throw new Error("message is required");
     }
@@ -20,7 +22,7 @@ export function validateMessage(message: any): void {
     }
 
     // 各メッセージがMessage型であることを確認
-    message.messageList.forEach((msg: any, index: number) => {
+    message.messageList.forEach((msg, index) => {
         if (typeof msg.role !== "string" || (msg.role !== "ai" && msg.role !== "user")) {
             throw new Error(`message.messageList[${index}].role must be "ai" or "user"`);
         }

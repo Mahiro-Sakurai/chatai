@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
         // クライアントからのjsonをパース
         const { message, userId } = await req.json().catch(() => ({}));
-        console.log("Received message:", message)
+        console.log("Received message:", message);
 
         // バリデーション
         validateMessage(message);
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         // Dify APIのレスポンスが成功かどうかをチェック
         if (!upstream.ok) {
             const errorResult = await upstream.json().catch(() => ({}));
-            console.error("Dify request failed\n", errorResult)
+            console.error("Dify request failed\n", errorResult);
             return NextResponse.json({ error: `Dify request failed: ${errorResult.code}` }, { status: errorResult.status });
         } else {
             // Dify の返答をパース
@@ -54,11 +54,16 @@ export async function POST(req: Request) {
                 content: result.answer ?? "(no answer)",
             });
         }
-    } catch (error: any) {
-        const errorMessage = error?.message || "Unknown Error";
-        console.error("Error message:", errorMessage);
-        return NextResponse.json({ error: errorMessage }, { status: 400 });
+    } catch (error: unknown) {
+        // エラーハンドリング：`error` が `Error` オブジェクトかどうかを確認
+        if (error instanceof Error) {
+            const errorMessage = error.message || "Unknown Error";
+            console.error("Error message:", errorMessage);
+            return NextResponse.json({ error: errorMessage }, { status: 400 });
+        } else {
+            // `error` が `Error` オブジェクトでない場合（例えば`string` や `unknown`）
+            console.error("Unknown error occurred");
+            return NextResponse.json({ error: "Unknown error occurred" }, { status: 400 });
+        }
     }
-
-
 }
