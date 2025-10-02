@@ -1,14 +1,19 @@
 // src/features/chat/useChat.ts
 import { useState } from "react";
 import { Message } from "./types";
+import { isMessage } from "./types";
 
 export function useChat(initialMessages: Message[] = []) {
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [value, setValue] = useState("");
-    const [count, setCount] = useState(0); // 👈 裏で管理
+    const [count, setCount] = useState(0);
 
     async function sendMessage() {
-        if (!value.trim()) return;
+        console.log("sendMessage hit")
+        if (!value.trim() || messages.length === 0) {
+            console.error("Invalid data to send")
+            return
+        };
 
         // 会話回数++
         const newCount = count + 1;
@@ -21,20 +26,39 @@ export function useChat(initialMessages: Message[] = []) {
         setValue("");
 
         // データ成型
-        const Pdata = `{
-        "content": "${value}",
-        "count": ${newCount}
-        }`;
+        const Pdata = {
+            content: value,
+            count: newCount,
+            messageList: messages,
+        };
+        console.log("Sending to API:", Pdata);
 
-        // API に送信（会話回数, メッセージ）
+
+        // API に送信
         const res = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: Pdata }),
         });
 
-        const Gdata: Message = await res.json();
-        setMessages((prev) => [...prev, Gdata]);
+        // レスポンスが成功したか確認
+        if (!res.ok) {
+            const errorData = await res.json();
+            console.log(errorData)
+            console.log(errorData.status)
+            setMessages((prev) => [
+                ...prev,
+                { role: "ai", content: `${errorData.error}` }]);
+        } else {
+            // 成功した場合、APIから返されたデータを処理
+            const Gdata = await res.json();
+            console.log("Response from API:", Gdata);
+            // AIの返信をmessagesに追加
+            setMessages((prev) => [
+                ...prev,
+                { role: "ai", content: Gdata.content ?? "(no answer)" }
+            ]);
+        }
     }
 
     return {
