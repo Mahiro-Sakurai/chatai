@@ -1,4 +1,5 @@
-// 入力フォーム
+import { useState } from "react";
+
 type Props = {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -6,8 +7,21 @@ type Props = {
 };
 
 export default function InputForm({ value, onChange, onSubmit }: Props) {
+    // valueが空文字でないことを確認関数
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (value.trim() !== "") {
+            onSubmit(e); // onSubmitを呼び出す
+        } else {
+            console.log("入力は空でない場合に送信できます");
+        }
+    };
+
+    // ボタンの背景色を決定するクラス
+    const buttonClass = value === "" ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600";
+
     return (
-        <form onSubmit={onSubmit} className="flex space-x-2">
+        <form onSubmit={handleSubmit} className="flex space-x-2">
             <input
                 type="text"
                 name="name"
@@ -18,7 +32,8 @@ export default function InputForm({ value, onChange, onSubmit }: Props) {
             />
             <button
                 type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                className={`px-4 py-2 text-white rounded-lg ${buttonClass}`}  // 背景色を変えるよ
+                disabled={value === ""}  // valueが空のとき送信ボタンを無効
             >
                 送信
             </button>

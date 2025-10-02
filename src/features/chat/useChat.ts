@@ -45,7 +45,6 @@ export function useChat(initialMessages: Message[] = []) {
         if (!res.ok) {
             const errorData = await res.json();
             console.log(errorData)
-            console.log(errorData.status)
             setMessages((prev) => [
                 ...prev,
                 { role: "ai", content: `${errorData.error}` }]);
