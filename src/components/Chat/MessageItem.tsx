@@ -1,5 +1,6 @@
 // メッセージ1つ分のUI
 import { Message } from "@/features/chat/types";
+import ReactMarkdown from "react-markdown"
 
 type Props = {
     message: Message;
@@ -16,7 +17,8 @@ export default function MessageItem({ message }: Props) {
                     : "bg-gray-300 text-black"
                     }`}
             >
-                {content}
+                {role === "user" ? (content) : (<ReactMarkdown>{content}</ReactMarkdown>)}
+
 
             </div>
         </div>

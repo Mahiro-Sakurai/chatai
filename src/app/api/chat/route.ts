@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         console.log("Received message:", message);
 
         // バリデーション
-        validateMessage(message);
+        // validateMessage(message);
 
         // Dify に渡す
         const upstream = await fetch(`${BASE_URL}/chat-messages`, {
@@ -47,6 +47,7 @@ export async function POST(req: Request) {
             // Dify の返答をパース
             const result = await upstream.json();
             console.log("Dify response:", result);
+            console.log(result.metadata.retriver_resources)
 
             // content だけ抽出して返す
             return NextResponse.json({

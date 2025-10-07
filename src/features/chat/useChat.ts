@@ -1,7 +1,7 @@
 // src/features/chat/useChat.ts
 import { useState } from "react";
 import { Message } from "./types";
-import { isMessage } from "./types";
+import { stringifyMassageList } from "./types";
 
 export function useChat(initialMessages: Message[] = []) {
     const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -26,10 +26,11 @@ export function useChat(initialMessages: Message[] = []) {
         setValue("");
 
         // データ成型
+        const strMessages: string = stringifyMassageList(messages)
         const Pdata = {
             content: value,
             count: newCount,
-            messageList: messages,
+            messageList: strMessages
         };
         console.log("Sending to API:", Pdata);
 

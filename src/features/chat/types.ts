@@ -6,7 +6,7 @@ export type Message = {
 /*
 型ガード
     引数をMessageだと強制的に認識させてプロパティにアクセス 
-    ⇒ if: アクセスできない = undefined 
+    ⇒ if(アクセスできない) = undefined 
     ⇒ false
 obj is Message 
     TypeScript に対して「もし obj が Message 型だったら、
@@ -14,4 +14,8 @@ obj is Message
 */
 export function isMessage(obj: Message): obj is Message {
     return (obj as Message).role !== undefined;
+}
+
+export function stringifyMassageList(msg: object): string {
+    return JSON.stringify(msg);
 }
