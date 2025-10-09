@@ -1,4 +1,3 @@
-// src/features/chat/useChat.ts
 import { useState } from "react";
 import { Message } from "./types";
 import { stringifyMassageList } from "./types";

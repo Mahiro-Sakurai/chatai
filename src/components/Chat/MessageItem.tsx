@@ -1,6 +1,6 @@
 // メッセージ1つ分のUI
 import { Message } from "@/features/chat/types";
-import ReactMarkdown from "react-markdown"
+import ReactMarkdown from "react-markdown" // とりあえず
 
 type Props = {
     message: Message;

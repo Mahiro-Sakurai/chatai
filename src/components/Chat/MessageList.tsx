@@ -1,5 +1,4 @@
 // メッセージ一覧を描画
-// src/components/Chat/MessageList.tsx
 import { Message } from "@/features/chat/types";
 import MessageItem from "./MessageItem";
 
