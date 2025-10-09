@@ -15,7 +15,3 @@ obj is Message
 export function isMessage(obj: Message): obj is Message {
     return (obj as Message).role !== undefined;
 }
-
-export function stringifyMassageList(msg: object): string {
-    return JSON.stringify(msg);
-}

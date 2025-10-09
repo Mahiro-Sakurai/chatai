@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Message } from "./types";
-import { stringifyMassageList } from "./types";
 
 export function useChat(initialMessages: Message[] = []) {
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [value, setValue] = useState("");
     const [count, setCount] = useState(0);
+    const [conversationID, setconversationID] = useState(undefined)
 
     async function sendMessage() {
         console.log("sendMessage hit")
@@ -19,11 +19,10 @@ export function useChat(initialMessages: Message[] = []) {
         setMessages((prev) => [...prev, { role: "user", content: value }]);
         setValue("");
 
-        const strMessages: string = stringifyMassageList(messages)
         const Pdata = {
             content: value,
             count: newCount,
-            messageList: strMessages
+            conversationID: conversationID,
         };
         console.log("Sending to API:", Pdata);
 
@@ -42,6 +41,7 @@ export function useChat(initialMessages: Message[] = []) {
         } else {
             const Gdata = await res.json();
             console.log("Response from API:", Gdata);
+            setconversationID(Gdata.conversationID)
             setMessages((prev) => [
                 ...prev,
                 { role: "ai", content: Gdata.content ?? "(no answer)" }

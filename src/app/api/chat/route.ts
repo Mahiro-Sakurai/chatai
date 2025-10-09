@@ -26,11 +26,11 @@ export async function POST(req: Request) {
             body: JSON.stringify({
                 inputs: {
                     count: message.count,
-                    messageList: message.messageList,
                 },
                 query: message.content,
                 user: userId || "anon",
                 response_mode: "blocking",
+                "conversation_id": message.conversationID ?? undefined,
             }),
         });
 
@@ -46,6 +46,7 @@ export async function POST(req: Request) {
             return NextResponse.json({
                 role: "ai",
                 content: result.answer ?? "(no answer)",
+                conversationID: result.conversation_id,
             });
         }
     } catch (error: unknown) {
