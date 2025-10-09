@@ -1,62 +1,70 @@
 import { NextResponse } from "next/server";
-import { validateMessage } from "@/app/utils/validatoin";
 
 const BASE_URL = process.env.DIFY_BASE_URL || "https://api.dify.ai/v1";
 const API_KEY = process.env.DIFY_API_KEY!;
 
+export const runtime = "edge";
+
 export async function POST(req: Request) {
     console.log("API route hit!");
 
-    try {
-        if (!API_KEY) {
-            throw new Error("DIFY_API_KEY is not on server");
-        }
-
-        const { message, userId } = await req.json().catch(() => ({}));
-        console.log("Received message:", message);
-
-        // validateMessage(message);
-
-        const upstream = await fetch(`${BASE_URL}/chat-messages`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${API_KEY}`,
-            },
-            body: JSON.stringify({
-                inputs: {
-                    count: message.count,
-                },
-                query: message.content,
-                user: userId || "anon",
-                response_mode: "blocking",
-                "conversation_id": message.conversationID ?? undefined,
-            }),
-        });
-
-        if (!upstream.ok) {
-            const errorResult = await upstream.json().catch(() => ({}));
-            console.error("Dify request failed\n", errorResult);
-            return NextResponse.json({ error: `Dify request failed: ${errorResult.code}` }, { status: errorResult.status });
-        } else {
-            const result = await upstream.json();
-            console.log("Dify response:", result);
-            console.log(result.metadata.retriver_resources)
-
-            return NextResponse.json({
-                role: "ai",
-                content: result.answer ?? "(no answer)",
-                conversationID: result.conversation_id,
-            });
-        }
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            const errorMessage = error.message || "Unknown Error";
-            console.error("Error message:", errorMessage);
-            return NextResponse.json({ error: errorMessage }, { status: 400 });
-        } else {
-            console.error("Unknown error occurred");
-            return NextResponse.json({ error: "Unknown error occurred" }, { status: 400 });
-        }
+    if (!API_KEY) {
+        return NextResponse.json({ error: "DIFY_API_KEY not set" }, { status: 500 });
     }
+
+    const { message, userId } = await req.json();
+    console.log("Received message:", message);
+
+    const upstream = await fetch(`${BASE_URL}/chat-messages`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+            inputs: { count: message.count },
+            query: message.content,
+            user: userId || "anon",
+            response_mode: "streaming",
+            conversation_id: message.conversationID ?? undefined,
+        }),
+    });
+
+    if (!upstream.ok || !upstream.body) {
+        const errorText = await upstream.text().catch(() => "Unknown error");
+        console.error("Dify stream failed:", errorText);
+        return NextResponse.json({ error: "Dify stream error" }, { status: 500 });
+    }
+
+    const decoder = new TextDecoder("utf-8");
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+        async start(controller) {
+            const reader = upstream.body!.getReader();
+
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    controller.enqueue(encoder.encode(chunk));
+                }
+            } catch (err) {
+                console.error("Streaming error:", err);
+                controller.error(err);
+            } finally {
+                controller.close();
+            }
+        },
+    });
+
+    return new Response(stream, {
+        headers: {
+            "Content-Type": "text/event-stream; charset=utf-8",
+            "Cache-Control": "no-cache, no-transform",
+            Connection: "keep-alive",
+        },
+    });
 }
